@@ -4,11 +4,12 @@ metadata:
   name: community-frontend-svc
   namespace: community
   labels:
-    app: community-frontend
+    app: community
+    tier: frontend
 spec:
   type: ClusterIP
   selector:
-    app: community-frontend
+    app: community
     tier: frontend
   ports:
     - name: http

@@ -14,20 +14,20 @@ spec:
 
   selector:
     matchLabels:
-      app: community-backend
+      app: community
       tier: backend
 
   template:
     metadata:
       labels:
-        app: community-backend
+        app: community
         tier: backend
         component: api
 
     spec:
       containers:
         - name: backend
-          image: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend:git-61e708a
+          image: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend:git-2b40f53
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -45,20 +45,21 @@ spec:
               memory: "1Gi"
           startupProbe:
             httpGet:
-              path: /health
+              path: /health/ready
               port: http
             periodSeconds: 3
             failureThreshold: 20
           readinessProbe:
             httpGet:
-              path: /health
+              path: /health/ready
               port: http
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 3
+            successThreshold: 2
           livenessProbe:
             httpGet:
-              path: /health
+              path: /health/live
               port: http
             periodSeconds: 10
             timeoutSeconds: 2
