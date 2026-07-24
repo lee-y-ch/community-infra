@@ -15,11 +15,14 @@ spec:
   selector:
     matchLabels:
       app: community-frontend
+      tier: frontend
 
   template:
     metadata:
       labels:
         app: community-frontend
+        tier: frontend
+        component: web
 
     spec:
       containers:
