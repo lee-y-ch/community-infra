@@ -4,11 +4,12 @@ metadata:
   name: community-backend-svc
   namespace: community
   labels:
-    app: community-backend
+    app: community
+    tier: backend
 spec:
   type: ClusterIP
   selector:
-    app: community-backend
+    app: community
     tier: backend
   ports:
     - name: http
