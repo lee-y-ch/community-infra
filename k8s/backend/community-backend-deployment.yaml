@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: community-backend-deployment
+  namespace: community
+spec:
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  selector:
+    matchLabels:
+      app: community-backend
+
+  template:
+    metadata:
+      labels:
+        app: community-backend
+
+    spec:
+      containers:
+        - name: backend
+          image: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend:git-61e708a
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: community-backend-config
+            - secretRef:
+                name: community-backend-secret
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "640Mi"
+            limits:
+              memory: "1Gi"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 3
+            failureThreshold: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+      
