@@ -6,14 +6,16 @@ metadata:
   labels:
     app: community
     tier: frontend
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.healthcheck.path }}
+    alb.ingress.kubernetes.io/success-codes: {{ .Values.healthcheckSuccessCodes | quote }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.service.type }}
   selector:
     app: community
     tier: frontend
   ports:
     - name: http
-      port: 3000
+      port: {{ .Values.service.port }}
       targetPort: http
       protocol: TCP
-  

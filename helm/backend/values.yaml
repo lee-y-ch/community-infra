@@ -1,0 +1,48 @@
+replicaCount: 2
+
+image:
+  repository: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend
+  tag: git-ed518f1
+
+rollingUpdate:
+  maxSurge: 1
+  maxUnavailable: 0
+
+resources:
+  requests:
+    cpu: "150m"
+    memory: "640Mi"
+  limits:
+    memory: "1Gi"
+
+probes:
+  startup:
+    periodSeconds: 3
+    failureThreshold: 20
+  readiness:
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+    successThreshold: 2
+  liveness:
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+service:
+  type: NodePort
+  port: 8080
+
+config:
+  FILE_UPLOAD_DIR: "/home/ubuntu/apps/uploads/images"
+  AWS_REGION: "ap-northeast-2"
+  S3_ORIGINAL_BUCKET: "leo-community-images-original-501479502338-ap-northeast-2-an"
+  S3_PROCESSED_BUCKET: "leo-community-images-processed-501479502338-ap-northeast-2-an"
+  IMAGE_BASE_URL: "https://images.leo-community.xyz"
+  PRESIGNED_URL_EXPIRATION_SECONDS: "300"
+  IMAGE_MAX_FILE_SIZE: "10MB"
+  SERVER_SHUTDOWN: "graceful"
+  SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: "25s"
+
+healthcheck:
+  path: /health/live

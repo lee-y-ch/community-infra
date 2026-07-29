@@ -4,26 +4,22 @@ metadata:
   name: community-backend-deployment
   namespace: community
 spec:
-  replicas: 2
-
+  replicas: {{ .Values.replicaCount }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
   selector:
     matchLabels:
       app: community
       tier: backend
-
   template:
     metadata:
       labels:
         app: community
         tier: backend
         component: api
-
     spec:
       terminationGracePeriodSeconds: 40
       containers:
@@ -31,8 +27,8 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: [ "sh", "-c", "sleep 5" ]
-          image: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend:git-ed518f1
+                command: ["sh", "-c", "sleep 5"]
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -44,29 +40,28 @@ spec:
                 name: community-backend-secret
           resources:
             requests:
-              cpu: "150m"
-              memory: "640Mi"
+              cpu: "{{ .Values.resources.requests.cpu }}"
+              memory: "{{ .Values.resources.requests.memory }}"
             limits:
-              memory: "1Gi"
+              memory: "{{ .Values.resources.limits.memory }}"
           startupProbe:
             httpGet:
               path: /health/ready
               port: http
-            periodSeconds: 3
-            failureThreshold: 20
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
           readinessProbe:
             httpGet:
               path: /health/ready
               port: http
-            periodSeconds: 5
-            timeoutSeconds: 2
-            failureThreshold: 3
-            successThreshold: 2
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold }}
           livenessProbe:
             httpGet:
               path: /health/live
               port: http
-            periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 3
-      
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}

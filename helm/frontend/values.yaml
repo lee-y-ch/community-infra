@@ -1,0 +1,38 @@
+replicaCount: 3
+
+image:
+  repository: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/frontend
+  tag: git-5843b16
+
+rollingUpdate:
+  maxSurge: 1
+  maxUnavailable: 0
+
+resources:
+  requests:
+    cpu: "120m"
+    memory: "96Mi"
+  limits:
+    memory: "192Mi"
+
+probes:
+  readiness:
+    initialDelaySeconds: 2
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+    successThreshold: 2
+  liveness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+service:
+  type: NodePort
+  port: 3000
+
+healthcheck:
+  path: /
+
+healthcheckSuccessCodes: "200,302"

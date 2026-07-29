@@ -1,6 +1,4 @@
+*.tmp
+*-secret.yaml
+secret.yaml
 .DS_Store
-.idea/
-.vscode/
-*.log
-.env
-*.secret.yaml

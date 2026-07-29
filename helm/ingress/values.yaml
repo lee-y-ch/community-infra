@@ -1,0 +1,16 @@
+host: leo-community.xyz
+certificateArn: arn:aws:acm:ap-northeast-2:501479502338:certificate/181d03b3-2b67-4591-bee7-5b4cbead028c,arn:aws:acm:ap-northeast-2:501479502338:certificate/9de78de7-9ef6-4d88-8969-3ff40c8e3fff
+
+backend:
+  serviceName: community-backend-svc
+  servicePort: 8080
+  paths:
+    - /auth
+    - /posts
+    - /comments
+    - /users
+    - /v1
+
+frontend:
+  serviceName: community-frontend-svc
+  servicePort: 3000
