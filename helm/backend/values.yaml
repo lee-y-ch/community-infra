@@ -1,4 +1,4 @@
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend
