@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/frontend
-  tag: git-5843b16
+  tag: git-0311b74
 
 rollingUpdate:
   maxSurge: 1
