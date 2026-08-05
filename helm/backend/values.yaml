@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend
-  tag: git-5fb12dc
+  tag: git-825ceec
 
 rollingUpdate:
   maxSurge: 1
