@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: 501479502338.dkr.ecr.ap-northeast-2.amazonaws.com/community/backend
-  tag: git-5fb12dc
+  tag: git-825ceec
 
 rollingUpdate:
   maxSurge: 1
@@ -43,6 +43,11 @@ config:
   IMAGE_MAX_FILE_SIZE: "10MB"
   SERVER_SHUTDOWN: "graceful"
   SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: "25s"
+
+  VIEW_COUNT_BUFFER_ENABLED: "true"
+  VALKEY_HOST: "leo-community-viewcount-nn927e.serverless.apn2.cache.amazonaws.com"
+  VALKEY_PORT: "6379"
+  VALKEY_SSL_ENABLED: "true"
 
 healthcheck:
   path: /health/live
