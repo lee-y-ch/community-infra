@@ -1,0 +1,38 @@
+{
+    "QueueConfigurations": [
+        {
+            "Id": "image-processing-post-to-sqs",
+            "QueueArn": "arn:aws:sqs:ap-northeast-2:501479502338:leo-community-image-processing",
+            "Events": [
+                "s3:ObjectCreated:*"
+            ],
+            "Filter": {
+                "Key": {
+                    "FilterRules": [
+                        {
+                            "Name": "Prefix",
+                            "Value": "post/"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "Id": "image-processing-profile-to-sqs",
+            "QueueArn": "arn:aws:sqs:ap-northeast-2:501479502338:leo-community-image-processing",
+            "Events": [
+                "s3:ObjectCreated:*"
+            ],
+            "Filter": {
+                "Key": {
+                    "FilterRules": [
+                        {
+                            "Name": "Prefix",
+                            "Value": "profile/"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
