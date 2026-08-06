@@ -9,6 +9,7 @@ backend:
     - /posts
     - /comments
     - /users
+    - /images
     - /v1
 
 frontend:
