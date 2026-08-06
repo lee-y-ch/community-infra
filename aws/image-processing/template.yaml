@@ -12,6 +12,10 @@ Parameters:
     Type: String
     Default: leo-image-processor-lambda-role
 
+  LambdaFunctionName:
+    Type: String
+    Default: leo-community-image-processor
+
 Resources:
   ImageProcessingDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -91,6 +95,24 @@ Resources:
               Fn::GetAtt:
                 - ImageProcessingQueue
                 - Arn
+  ImageProcessingEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn:
+      - LambdaSqsConsumePolicy
+    Properties:
+      EventSourceArn:
+        Fn::GetAtt:
+          - ImageProcessingQueue
+          - Arn
+      FunctionName:
+        Ref: LambdaFunctionName
+      Enabled: true
+      BatchSize: 1
+      MaximumBatchingWindowInSeconds: 0
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      ScalingConfig:
+        MaximumConcurrency: 5
 
   ImageProcessingDlqAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -134,3 +156,7 @@ Outputs:
       Fn::GetAtt:
         - ImageProcessingDeadLetterQueue
         - Arn
+
+  ImageProcessingEventSourceMappingId:
+    Value:
+      Ref: ImageProcessingEventSourceMapping
