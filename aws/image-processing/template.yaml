@@ -16,6 +16,12 @@ Parameters:
     Type: String
     Default: leo-community-image-processor
 
+  AlertEmail:
+    Type: String
+    Description: Email address that receives image-processing failure alerts
+    AllowedPattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+    ConstraintDescription: Enter a valid email address
+
 Resources:
   ImageProcessingDeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -95,6 +101,7 @@ Resources:
               Fn::GetAtt:
                 - ImageProcessingQueue
                 - Arn
+
   ImageProcessingEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     DependsOn:
@@ -117,6 +124,10 @@ Resources:
   ImageProcessingDlqAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmActions:
+        - Ref: ImageProcessingAlertTopic
+      OKActions:
+        - Ref: ImageProcessingAlertTopic
       AlarmName: leo-community-image-processing-dlq-visible
       AlarmDescription: >
         Image transformation messages are present in the dead-letter queue.
@@ -135,6 +146,26 @@ Resources:
       Threshold: 1
       ComparisonOperator: GreaterThanOrEqualToThreshold
       TreatMissingData: notBreaching
+
+  ImageProcessingAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: leo-community-image-processing-alerts
+      DisplayName: Leo image processing alerts
+      Tags:
+        - Key: Name
+          Value: leo-community-image-processing-alerts
+        - Key: Purpose
+          Value: image-processing-failure-alerts
+
+  ImageProcessingAlertSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn:
+        Ref: ImageProcessingAlertTopic
+      Protocol: email
+      Endpoint:
+        Ref: AlertEmail
 
 Outputs:
   ImageProcessingQueueUrl:
@@ -160,3 +191,7 @@ Outputs:
   ImageProcessingEventSourceMappingId:
     Value:
       Ref: ImageProcessingEventSourceMapping
+
+  ImageProcessingAlertTopicArn:
+    Value:
+      Ref: ImageProcessingAlertTopic
