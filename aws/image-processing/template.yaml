@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  Reliable image-processing queues for the Leo Community image processor.
+
+Parameters:
+  OriginalBucketName:
+    Type: String
+    Default: leo-community-images-original-501479502338-ap-northeast-2-an
+
+  LambdaExecutionRoleName:
+    Type: String
+    Default: leo-image-processor-lambda-role
+
+Resources:
+  ImageProcessingDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: leo-community-image-processing-dlq
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: Name
+          Value: leo-community-image-processing-dlq
+        - Key: Purpose
+          Value: image-processing-failure-storage
+
+  ImageProcessingQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: leo-community-image-processing
+      VisibilityTimeout: 180
+      MessageRetentionPeriod: 345600
+      ReceiveMessageWaitTimeSeconds: 20
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - ImageProcessingDeadLetterQueue
+            - Arn
+        maxReceiveCount: 5
+      Tags:
+        - Key: Name
+          Value: leo-community-image-processing
+        - Key: Purpose
+          Value: image-processing-work-queue
+
+  ImageProcessingQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - Ref: ImageProcessingQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowOriginalBucketToSendMessages
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action:
+              - sqs:SendMessage
+            Resource:
+              Fn::GetAtt:
+                - ImageProcessingQueue
+                - Arn
+            Condition:
+              StringEquals:
+                aws:SourceAccount:
+                  Ref: AWS::AccountId
+              ArnEquals:
+                aws:SourceArn:
+                  Fn::Sub: arn:${AWS::Partition}:s3:::${OriginalBucketName}
+
+  LambdaSqsConsumePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: leo-image-processor-sqs-consume
+      Roles:
+        - Ref: LambdaExecutionRoleName
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ConsumeImageProcessingQueue
+            Effect: Allow
+            Action:
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ChangeMessageVisibility
+            Resource:
+              Fn::GetAtt:
+                - ImageProcessingQueue
+                - Arn
+
+  ImageProcessingDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: leo-community-image-processing-dlq-visible
+      AlarmDescription: >
+        Image transformation messages are present in the dead-letter queue.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value:
+            Fn::GetAtt:
+              - ImageProcessingDeadLetterQueue
+              - QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  ImageProcessingQueueUrl:
+    Value:
+      Ref: ImageProcessingQueue
+
+  ImageProcessingQueueArn:
+    Value:
+      Fn::GetAtt:
+        - ImageProcessingQueue
+        - Arn
+
+  ImageProcessingDeadLetterQueueUrl:
+    Value:
+      Ref: ImageProcessingDeadLetterQueue
+
+  ImageProcessingDeadLetterQueueArn:
+    Value:
+      Fn::GetAtt:
+        - ImageProcessingDeadLetterQueue
+        - Arn
