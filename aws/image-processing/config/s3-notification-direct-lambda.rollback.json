@@ -1,0 +1,38 @@
+{
+    "LambdaFunctionConfigurations": [
+        {
+            "Id": "aabbb65b-421d-4b2c-bb05-95c9905f6900",
+            "LambdaFunctionArn": "arn:aws:lambda:ap-northeast-2:501479502338:function:leo-community-image-processor",
+            "Events": [
+                "s3:ObjectCreated:*"
+            ],
+            "Filter": {
+                "Key": {
+                    "FilterRules": [
+                        {
+                            "Name": "Prefix",
+                            "Value": "post/"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "Id": "5d9fa85e-da5f-41e5-ba2e-a3fd5092d424",
+            "LambdaFunctionArn": "arn:aws:lambda:ap-northeast-2:501479502338:function:leo-community-image-processor",
+            "Events": [
+                "s3:ObjectCreated:*"
+            ],
+            "Filter": {
+                "Key": {
+                    "FilterRules": [
+                        {
+                            "Name": "Prefix",
+                            "Value": "profile/"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
